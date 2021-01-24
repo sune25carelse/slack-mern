@@ -1,12 +1,12 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import cors from 'cors';
-import Pusher from 'pusher';
-import mongoData from './mongoData';
+import express from 'express'
+import mongoose from 'mongoose'
+import cors from 'cors'
+import Pusher from 'pusher'
+import mongoData from './mongoData.js'
 
 // app config 
 const app = express()
-const port = process.env.POTRT || 9000
+const port = process.env.PORT || 9000
 
 // middlewares
 app.use(cors())
@@ -21,7 +21,7 @@ mongoose.connect(mongoURI, {
     useUnifiedTopology: true
 })
 
-.mongoose.connection('open', () => {
+mongoose.connection.once('open', () => {
     console.log('DB CONNECTED')
 })
 
@@ -40,7 +40,7 @@ app.post('/new/channel',(req,res)=>{
     })
 })
 
-.app.post('/new/message', (req, res) => {
+app.post('/new/message', (req, res) => {
     const id = req.query.id 
     const newMessage = req.body
 
