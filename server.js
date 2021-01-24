@@ -23,6 +23,13 @@ mongoose.connect(mongoURI, {
 
 .mongoose.connection('open', () => {
     console.log('DB CONNECTED')
+})
+
+// api routes
+app.get('/', (req, res) => res.status(200).send('Lets build mern stack🚀🚀'))
+
+app.post('/new/channel',(req,res)=>{
+    const dbData = req.body
 
     mongoData.create(dbData, (err, data) => {
         if (err) {
@@ -33,11 +40,52 @@ mongoose.connect(mongoURI, {
     })
 })
 
-// api routes
-app.get('/', (req, res) => res.status(200).send('Lets build mern stack🚀🚀'))
+.app.post('/new/message', (req, res) => {
+    const id = req.query.id 
+    const newMessage = req.body
 
-app.post('/new/channel',(req,res)=>{
-    const dbData = req.body
+    mongoData.update(
+        { _id: id},
+        { $push: { conversation: newMessage }},
+        (err, data) => {
+         if (err) {
+            res.status(500).send(err)
+         } else {
+            res.status(201).send(data)
+         }
+        }
+    )
+})
+
+app.get('/get/channelList', (req, res) => {
+    mongoData.find((err, data) => {
+        if (err) {
+            res.status(500).send(err)
+        } else {
+            let channel = []
+            
+            data.map((channelData) => {
+                const channelInfo = {
+                    id: channelData._id,
+                    name: channelData.channelName
+                }
+                channels.push(channelsInfo)      
+            })
+            res.status(200).send(channels)
+        }
+    })
+})
+
+app.get('/get/conversation', (req, res) => {
+    const id = req.query.id
+
+    mongoData.find ({ _id: id }, (err, data) => {
+        if (err) {
+            res.status(500).send(err)
+        } else {
+            res.status(200).send(data)
+        }
+    })
 })
 
 // listen
