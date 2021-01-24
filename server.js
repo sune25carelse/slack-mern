@@ -28,7 +28,7 @@ mongoose.connection.once('open', () => {
 // api routes
 app.get('/', (req, res) => res.status(200).send('Lets build mern stack🚀🚀'))
 
-app.post('/new/channel',(req,res)=>{
+app.post('/new/channel', (req,res) => {
     const dbData = req.body
 
     mongoData.create(dbData, (err, data) => {
@@ -69,7 +69,7 @@ app.get('/get/channelList', (req, res) => {
                     id: channelData._id,
                     name: channelData.channelName
                 }
-                channels.push(channelsInfo)      
+                channels.push(channelInfo)      
             })
             res.status(200).send(channels)
         }
