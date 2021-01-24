@@ -24,3 +24,5 @@ app.get('/', (req, res) => res.status(200).send('Lets build mern stack🚀🚀')
 
 // listen
 app.listen(port, () => console.log(`listening on localhost:${port}`))
+
+//test
