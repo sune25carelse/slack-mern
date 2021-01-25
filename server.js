@@ -8,12 +8,21 @@ import mongoData from './mongoData.js'
 const app = express()
 const port = process.env.PORT || 9000
 
+const pusher = new Pusher({
+    appId: "1144509",
+    key: "ebbf063369b5064a7f31",
+    secret: "3eaf0a549b8bc74e2e11",
+    cluster: "us3",
+    useTLS: true
+  });
+  
+
 // middlewares
 app.use(cors())
 app.use(express.json())
 
 // db config
-const mongoURI = 'mongodb+srv://admin:Vbti2zaP5b4hu3gx@cluster0.wvs32.mongodb.net/<dbname>?retryWrites=true&w=majority'
+const mongoURI = 'mongodb+srv://admin:Vbti2zaP5b4hu3gx@cluster0.wvs32.mongodb.net/slackDB>?retryWrites=true&w=majority'
 
 mongoose.connect(mongoURI, {
     useCreateIndex: true,
@@ -23,6 +32,23 @@ mongoose.connect(mongoURI, {
 
 mongoose.connection.once('open', () => {
     console.log('DB CONNECTED')
+
+    const changeStream = mongoose.connection.collection('conversations').watch()
+
+    changeStream.on('change', (change) => {
+        if (change.operationType === 'insert') {
+            pusher.trigger('channels', 'newChannel', {
+                'change': change
+            });
+        } else if (change.operationType === 'update') {
+             pusher.trigger('conversation', 'newMessage', {
+                 'change': change
+             });   
+        } else {
+            console.log('Error triggeringPusher')
+        }
+        
+    })
 })
 
 // api routes
@@ -35,7 +61,7 @@ app.post('/new/channel', (req,res) => {
         if (err) {
             res.status(500).send(err)
         } else{
-            res.statsu(201).send(data)
+            res.status(201).send(data)
         }
     })
 })
@@ -62,7 +88,7 @@ app.get('/get/channelList', (req, res) => {
         if (err) {
             res.status(500).send(err)
         } else {
-            let channel = []
+            let channels = []
             
             data.map((channelData) => {
                 const channelInfo = {
